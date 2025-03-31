@@ -1,8 +1,4 @@
-hvnt completed the readme file yet
-
-
-
-other than that.....am not sure if i did what was asked....cuz i ended up using the names only.....but cudnt see any other way around so anyways
+am not sure if i did what was asked....cuz i ended up using the names only.....but cudnt see any other way around so anyways
    
    okay so ig i'll explain whatever i did
 
@@ -106,4 +102,53 @@ train_pkmn(df) function:
 
 
 
-   4)
+   4)modelcheck.py
+import numpy as np---for operating numbers
+import matplotlib.pyplot as plt---plotting
+import seaborn as sns---Enhances visualizations.
+from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
+
+
+evalmod(trainer, xte, yte)
+ytb = (yte == "Yes").astype(int)
+yhat = trainer.predict(xte)
+yhat = (yhat == "Yes").astype(int)
+print("Yo, predictions be like:", np.unique(ytb))
+---converts yes to 1 and no to 0
+---predicts values using trainer.predict(xte)
+
+making CONFUSION MATRIX:
+cm = confusion_matrix(ytb, yhat)
+plt.figure(figsize=(6, 4))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["Regular", "Mega"], yticklabels=["Regular", "Mega"])
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.show()
+
+ROC:
+if hasattr(trainer, "predict_proba"):
+    y_probs = trainer.predict_proba(xte)[:, 1]
+    fpr, tpr, _ = roc_curve(ytb, y_probs)
+    roc_auc = auc(fpr, tpr)
+plt.plot(fpr, tpr, color="b", label=f"ROC (AUC = {roc_auc:.2f})")
+plt.plot([0, 1], [0, 1], linestyle="--", color="gray")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve")
+plt.legend()
+plt.show()
+---if the model supports probability predictions it calculates the ROC curve and plots it
+
+
+
+
+
+
+
+
+
+5)main.py
+inports functions from every other files
+trains and shows model
+
