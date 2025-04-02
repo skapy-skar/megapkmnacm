@@ -1,13 +1,14 @@
-import numpy as np
-from csvfile import load_data
-from filemanage import prep_data
+import pandas as pd
+from csvfile import csv
 from pkmnmastertraining import train_pkmn
 from modelcheck import evalmod
 
-fp = r"C:\Users\Aayush Dwivedi\Desktop\Python\MegaTask\Pokemon.csv"
-df = load_data(fp)
-dfp = prep_data(df)
-print("Yo labels before training:", np.unique(dfp["Mega_Evolution"]))
-trainer, xte, yte = train_pkmn(dfp)
+fp=r"C:\Users\Aayush Dwivedi\Desktop\Python\MegaTask\Pokemon.csv"
+df=pd.read_csv(fp)
+dfp=csv(df)
+trainer,xte,yte=train_pkmn(dfp)
 print("Your Pokémons are ready :)))")
-evalmod(trainer, xte, yte)
+evalmod(trainer,xte,yte)
+predictions=pd.DataFrame({"Name":dfp.loc[xte.index,"Name"],"Predicted_Mega_Evolution":trainer.predict(xte)})
+predictions.to_csv("final_predictions.csv", index=False)
+print("Predictions saved!")
