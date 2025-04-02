@@ -2,26 +2,23 @@
 
 
 
-   1)csvfile.py
-pandas:this is a data analyzing library
-fp:this is the file path of the CSV dataset.
-pd.read_csv(fp):reads the CSV file and stores it in a pandas(df).
-df["Name"].apply(lambda x: "Yes" if "Mega" in x else "No"):this checks if "Mega" is in the Pokemon's name
-if "Mega" is found, it labels it "Yes", otherwise "No".the result goes to Mega_Evolution
 
-df.drop(columns=["#", "Name"], inplace=True)
-this removes index number and column names because they're unnecessary for training
-inplace=True: ensures changes apply directly to df without needing to reassign it
 
-return df:returns the edited dataset
+1)csvfile.py
 
-fp:stores the path to the Pokemon dataset
+   pandas:this is a data analyzing library
 
-df = load_data(fp):loads the dataset and processes it
+   a function csv is defined with df as its parameter
+   in the function:
+         1)a new column to the df data is added named Mega Evolution with its content being Yes and No depending on if the pokemon is MegaEvolved or not.
+The fact that the Name contained the term Mega in it if the pokemon was mega evolved is used to make this column....Meganium being the exception was dealt seperately.
+         2)2 lists keepem and numstuff are created where the names of columns i want are put in and then get concatenated to a new data file called dfp.
+         3)this function returns dfp(the processed csv file)
 
-df.head():displays the first few rows
-
-df["Mega_Evolution"].value_counts():counts how many "Yes" and "No" labels exist
+   the parameter df represents the read csv file.
+   fp(main.py):this is the file path of the CSV dataset.
+   df=pd.read_csv(fp):reads the CSV file and stores it in df
+   dfp=csv(df):gives the processed table.
 
 
 
@@ -32,111 +29,42 @@ df["Mega_Evolution"].value_counts():counts how many "Yes" and "No" labels exist
 
 
 
-    2)filemanage.py
-pandas:used for manipulating data
-OneHotEncoder:converts category data like "type" into a format ML models can use
-StandardScaler:to make numerical data normal to improve training 
+2)pkmnmastertraining.py
 
-prep_data(df) function -
- a)keepem = ["#", "Name", "Mega_Evolution"]
-   keepem = [c for c in keepem if c in df.columns]
---->keeps only the columns that exist in df.
+   from sklearn.model_selection import train_test_split ====to split data into training and testing parts
+   from sklearn.linear_model import LogisticRegression ====for making the lr model
 
- b)numstuff = df.select_dtypes(include=["number"])
- --->selects all numeric columns for standardization
+   train_pkmn(df) function:
 
-  c)catstuff = ["Type 1", "Type 2", "Generation"]
-    catstuff = [c for c in catstuff if c in df.columns]
-  --->categorical columns are stored in catstuff
+         1)A list named drop is created with the column heading names which are not supposed to be used while training the data which is the index numbering and Name(of pokemon).The list is dropped from the entered parameter i.e df
 
-d)enc = pd.get_dummies(df[catstuff], drop_first=True)
-pd.get_dummies():categorical variables into binary(onehotencoder).
-drop_first=True:prevents repetition by dropping the first category.
+         2)Two seperate dataframes x and y are created where x has all the rest of the values except the column of Mega Evolution whereas y has only Mega evolution
 
-e)dfp = pd.concat([df[keepem], numstuff, enc], axis=1)
-  return dfp
-combines necessary columns into dfp
-returns the managed dataset
+         3)xtr-training x, xte-testing x, ytr-training y, yte-testing y, the data is spilted with training testing spilt being 80-20.Stratify parameter is used to ensure the same ratio of mega and non mega in the splited parts as there was in the overall data to avoid errors.
 
-f)fp = r"C:\Users\Aayush Dwivedi\Desktop\Python\MegaTask\Pokemon.csv"
-  df = pd.read_csv(fp):reads the dataset
-  dfp = prep_data(df.copy()):processes it using prep_data()
-  dfp.to_csv("processed_data.csv", index=False):saves it as processed_data.csv
-  print("save op!")
+         4)in a vriable named "trainer" a LR model is assigned. LR models make an algorithm which are supposed to predict binary outcomes(yes and no).max iterations is set 2000 means it updates it algorithm 2000 times. Why 2000? below it i was getting convergence warning which means the model couldnt fully learn cuz the different algos were not converging in less changes of the algo.
+
+         5).fit(x,y) is used to train the model trainer with x as input data and y as the result.
+
+         6)the model trainer and the testing datas are returned now.
 
 
 
 
 
 
+4)modelcheck.py
+
+   import matplotlib.pyplot as plt---plotting
+   import seaborn as sns---Enhances visualizations.
+   from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
 
 
-      3)pkmnmastertraining,py
-from sklearn.model_selection import train_test_split ====to split data into training and testing parts
-from sklearn.linear_model import LogisticRegression ====for making the lr model
-
-train_pkmn(df) function:
-   df = df.drop(columns=dropclmn)
-   --drops the columns which are not needed which is name clmn and serial num clmn
-
-   x = df.drop(columns=["Mega_Evolution"])-has everything except mega evos
-   y = df["Mega_Evolution"]-mega evo only
-
-   xtr, xte, ytr, yte = train_test_split(x, y, test_size=0.2, random_state=42)
-   spliting x and y to 80percent train and 20% test data.
-   random_state=42: Ensures the same split every time.
-
-   trainer = LogisticRegression(max_iter=2000)
-   trainer.fit(xtr, ytr)
-   creates a lr model
-   trains it using xtr and ytr
-
-   return trainer, xte, yte
-   returns the trained model and test data
-
-
-
-
-
-
-
-   4)modelcheck.py
-import numpy as np---for operating numbers
-import matplotlib.pyplot as plt---plotting
-import seaborn as sns---Enhances visualizations.
-from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
-
-
-evalmod(trainer, xte, yte)
-ytb = (yte == "Yes").astype(int)
-yhat = trainer.predict(xte)
-yhat = (yhat == "Yes").astype(int)
-print("Yo, predictions be like:", np.unique(ytb))
----converts yes to 1 and no to 0
----predicts values using trainer.predict(xte)
-
-making CONFUSION MATRIX:
-cm = confusion_matrix(ytb, yhat)
-plt.figure(figsize=(6, 4))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["Regular", "Mega"], yticklabels=["Regular", "Mega"])
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.title("Confusion Matrix")
-plt.show()
-
-ROC:
-if hasattr(trainer, "predict_proba"):
-    y_probs = trainer.predict_proba(xte)[:, 1]
-    fpr, tpr, _ = roc_curve(ytb, y_probs)
-    roc_auc = auc(fpr, tpr)
-plt.plot(fpr, tpr, color="b", label=f"ROC (AUC = {roc_auc:.2f})")
-plt.plot([0, 1], [0, 1], linestyle="--", color="gray")
-plt.xlabel("False Positive Rate")
-plt.ylabel("True Positive Rate")
-plt.title("ROC Curve")
-plt.legend()
-plt.show()
----if the model supports probability predictions it calculates the ROC curve and plots it
+   evalmod(trainer, xte, yte)
+            ytb = testing data with yes and no converted to 1s and 0s
+            yhat = predicted data for xte inputs with yes and no converted to 1s and 0s
+            making CONFUSION MATRIX
+            ROC:if the model supports probability predictions it calculates the ROC curve and plots it
 
 
 
@@ -147,6 +75,10 @@ plt.show()
 
 
 5)main.py
-inports functions from every other files
-trains and shows model
 
+   imports functions from every other files
+         1)df stores the given pokemon csv file in a pandas dataframe which is when sent through csv function to get dfp.
+         2)trainer model and testing datas are taken by sending dfp through the train_pkmn function.
+         3)then evalmod gives the required curves.
+         4)then makes a new dataframe named predictions which has the names of the testing data and their predictions.
+         5)this dataframe is sent to a csv file named final_predictions.csv which can be accessed now
