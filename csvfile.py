@@ -1,12 +1,16 @@
 import pandas as pd
 
-def load_data(fp):
-    df = pd.read_csv(fp)
-    df["Mega_Evolution"] = df["Name"].apply(lambda x: "Yes" if "Mega" in x else "No")
-    df.drop(columns=["#", "Name"], inplace=True)
-    return df
+def csv(df):
+    df["Mega_Evolution"] = df["Name"].apply(lambda x: "Yes" if "Mega" in x and x != "Meganium" else "No")
+    keepem = ["#","Name","Mega_Evolution"]
+    numstuff = ["HP","Attack","Defense","Sp. Atk","Sp. Def","Speed"]
+    dfp = pd.concat([df[keepem],df[numstuff]],axis=1)
+    return dfp
 
-fp = r"C:\Users\Aayush Dwivedi\Desktop\Python\MegaTask\Pokemon.csv"
-df = load_data(fp)
-print(df.head())
-print(df["Mega_Evolution"].value_counts())
+# fp = r"C:\Users\Aayush Dwivedi\Desktop\Python\MegaTask\Pokemon.csv"
+# df = pd.read_csv(fp)
+# dfp = csv(df)
+# print(dfp.head())
+# print(dfp["Mega_Evolution"].value_counts())
+# dfp.to_csv("processed_data.csv",index=False)
+# print("save op!")
