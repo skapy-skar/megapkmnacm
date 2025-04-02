@@ -1,5 +1,3 @@
-am not sure if i did what was asked....cuz i ended up using the names only.....but cudnt see any other way around so anyways
-   
    okay so ig i'll explain whatever i did
 
 
